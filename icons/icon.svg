@@ -1,0 +1,30 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="128"
+  height="128"
+  viewBox="0 0 128 128"
+>
+  <!-- background -->
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="#111827" />
+
+  <!-- tag outline -->
+  <path
+    d="M36 50 H72 L92 64 L72 78 H36 Z"
+    fill="none"
+    stroke="#FFFFFF"
+    stroke-width="10"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  />
+
+  <!-- tag hole -->
+  <circle cx="46" cy="64" r="5" fill="#FFFFFF" />
+
+  <!-- disable slash -->
+  <path
+    d="M38 90 L90 38"
+    stroke="#EF4444"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+</svg>

@@ -1,0 +1,19 @@
+/* Hide the "Includes paid promotion" button on YouTube videos */
+
+.ytp-paid-content-overlay,
+.ytp-paid-content-overlay-link,
+div.ytp-paid-content-overlay,
+a.ytp-paid-content-overlay-link,
+.ytp-paid-content-overlay-text,
+.ytp-paid-content-overlay-icon,
+.ytp-paid-content-overlay-indicator,
+.ytp-paid-content-overlay-chevron,
+[data-overlay-order="5"].ytp-paid-content-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
