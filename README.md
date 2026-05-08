@@ -57,6 +57,24 @@ Use `STORE_LISTING.md` for the Chrome Web Store listing copy, privacy answers,
 review notes, and asset checklist. Before submitting, confirm the ZIP in `dist/`
 matches the current `manifest.json` version.
 
+### GitHub Actions Deployment
+
+The `Deploy to Chrome Web Store` workflow builds the ZIP, uploads it to the
+Chrome Web Store API, and can submit it for review from GitHub Actions.
+
+Configure these GitHub Secrets in the `chrome-webstore` environment or the
+repository:
+
+- `CWS_CLIENT_ID`
+- `CWS_CLIENT_SECRET`
+- `CWS_REFRESH_TOKEN`
+- `CWS_PUBLISHER_ID`
+- `CWS_EXTENSION_ID`
+
+The item must already exist in the Chrome Web Store Developer Dashboard, and
+the Store Listing and Privacy tabs must be complete before the API can publish
+it. Run the workflow manually from the Actions tab when you are ready to deploy.
+
 ## Privacy
 
 This extension:

@@ -1,0 +1,210 @@
+name: Deploy to Chrome Web Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      submit_for_review:
+        description: Upload the package and submit it for Chrome Web Store review.
+        required: true
+        type: boolean
+        default: true
+      publish_type:
+        description: Publish behavior after review.
+        required: true
+        type: choice
+        default: DEFAULT_PUBLISH
+        options:
+          - DEFAULT_PUBLISH
+          - STAGED_PUBLISH
+      deploy_percentage:
+        description: Initial rollout percentage, from 0 to 100.
+        required: true
+        type: number
+        default: 100
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chrome-webstore-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    environment: chrome-webstore
+
+    env:
+      CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+      CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+      CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+      CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+      CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate extension
+        run: node scripts/validate-extension.mjs
+
+      - name: Run smoke tests
+        run: node scripts/smoke-test-content.mjs
+
+      - name: Build upload ZIP
+        run: bash scripts/package-extension.sh
+
+      - name: Locate package
+        id: package
+        run: |
+          set -euo pipefail
+          zip_path="$(find dist -maxdepth 1 -type f -name '*.zip' | sort | tail -n 1)"
+          if [[ -z "$zip_path" ]]; then
+            echo "No package ZIP found in dist/." >&2
+            exit 1
+          fi
+          echo "zip_path=$zip_path" >> "$GITHUB_OUTPUT"
+          unzip -l "$zip_path"
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-webstore-package
+          path: ${{ steps.package.outputs.zip_path }}
+          if-no-files-found: error
+
+      - name: Check deployment secrets
+        run: |
+          set -euo pipefail
+          missing=()
+          for name in \
+            CWS_CLIENT_ID \
+            CWS_CLIENT_SECRET \
+            CWS_REFRESH_TOKEN \
+            CWS_PUBLISHER_ID \
+            CWS_EXTENSION_ID
+          do
+            if [[ -z "${!name}" ]]; then
+              missing+=("$name")
+            fi
+          done
+
+          if (( ${#missing[@]} )); then
+            printf 'Missing required GitHub Secrets: %s\n' "${missing[*]}" >&2
+            exit 1
+          fi
+
+      - name: Get Chrome Web Store access token
+        id: token
+        run: |
+          set -euo pipefail
+          response="$(curl -fsS \
+            --request POST \
+            --data-urlencode "client_id=${CWS_CLIENT_ID}" \
+            --data-urlencode "client_secret=${CWS_CLIENT_SECRET}" \
+            --data-urlencode "refresh_token=${CWS_REFRESH_TOKEN}" \
+            --data-urlencode "grant_type=refresh_token" \
+            "https://oauth2.googleapis.com/token")"
+
+          access_token="$(node -e "const response = JSON.parse(process.argv[1]); if (!response.access_token) { console.error(JSON.stringify(response)); process.exit(1); } process.stdout.write(response.access_token);" "$response")"
+          echo "::add-mask::$access_token"
+          echo "access_token=$access_token" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to Chrome Web Store
+        id: upload
+        env:
+          ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+          ZIP_PATH: ${{ steps.package.outputs.zip_path }}
+        run: |
+          set -euo pipefail
+          upload_url="https://chromewebstore.googleapis.com/upload/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:upload"
+          response="$(curl -fsS \
+            --request POST \
+            --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --header "Content-Type: application/zip" \
+            --data-binary "@${ZIP_PATH}" \
+            "$upload_url")"
+
+          echo "$response"
+          upload_state="$(node -e "const response = JSON.parse(process.argv[1]); process.stdout.write(response.uploadState || '');" "$response")"
+          case "$upload_state" in
+            SUCCEEDED|IN_PROGRESS)
+              ;;
+            FAILED)
+              echo "Chrome Web Store upload failed." >&2
+              exit 1
+              ;;
+            *)
+              echo "Unexpected Chrome Web Store upload state: ${upload_state:-<empty>}" >&2
+              exit 1
+              ;;
+          esac
+          echo "upload_state=$upload_state" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for upload processing
+        if: ${{ steps.upload.outputs.upload_state == 'IN_PROGRESS' }}
+        env:
+          ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+        run: |
+          set -euo pipefail
+          status_url="https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:fetchStatus"
+
+          for attempt in {1..20}; do
+            response="$(curl -fsS \
+              --request GET \
+              --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+              "$status_url")"
+            echo "$response"
+
+            upload_state="$(node -e "const response = JSON.parse(process.argv[1]); process.stdout.write(response.lastAsyncUploadState || '');" "$response")"
+            case "$upload_state" in
+              SUCCEEDED)
+                exit 0
+                ;;
+              FAILED)
+                echo "Chrome Web Store upload processing failed." >&2
+                exit 1
+                ;;
+              IN_PROGRESS)
+                ;;
+              *)
+                echo "Unexpected Chrome Web Store async upload state: ${upload_state:-<empty>}" >&2
+                exit 1
+                ;;
+            esac
+
+            sleep 15
+          done
+
+          echo "Timed out waiting for Chrome Web Store upload processing." >&2
+          exit 1
+
+      - name: Submit for review
+        if: ${{ inputs.submit_for_review }}
+        env:
+          ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+          PUBLISH_TYPE: ${{ inputs.publish_type }}
+          DEPLOY_PERCENTAGE: ${{ inputs.deploy_percentage }}
+        run: |
+          set -euo pipefail
+
+          if (( DEPLOY_PERCENTAGE < 0 || DEPLOY_PERCENTAGE > 100 )); then
+            echo "deploy_percentage must be between 0 and 100." >&2
+            exit 1
+          fi
+
+          body="$(node -e "process.stdout.write(JSON.stringify({ publishType: process.env.PUBLISH_TYPE, deployInfos: [{ deployPercentage: Number(process.env.DEPLOY_PERCENTAGE) }] }));")"
+          publish_url="https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:publish"
+
+          curl -fsS \
+            --request POST \
+            --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --header "Content-Type: application/json" \
+            --data "$body" \
+            "$publish_url"
