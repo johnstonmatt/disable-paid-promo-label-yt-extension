@@ -1,0 +1,13 @@
+{
+  "name": "paid-promo-hider-for-youtube",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome extension that hides the paid promotion overlay button on YouTube videos.",
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/smoke-test-content.mjs",
+    "validate": "node scripts/validate-extension.mjs",
+    "package": "bash scripts/package-extension.sh"
+  },
+  "license": "MIT"
+}

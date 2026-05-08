@@ -9,6 +9,7 @@ Thumbs.db
 .vscode/
 
 # Package files
+dist/
 *.zip
 *.crx
 *.pem

@@ -1,5 +1,5 @@
 /**
- * Disable YouTube Paid Promotion Button
+ * Paid Promo Hider for YouTube
  *
  * This content script removes the "Includes paid promotion" overlay
  * that appears on sponsored YouTube videos.
