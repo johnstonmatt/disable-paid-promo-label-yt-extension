@@ -1,22 +1,24 @@
 /**
  * Paid Promo Hider for YouTube
  *
- * This content script removes the "Includes paid promotion" overlay
- * that appears on sponsored YouTube videos.
+ * This content script removes the "Includes paid promotion" banner
+ * that appears over sponsored YouTube thumbnails.
  */
 
 (function () {
   "use strict";
 
-  // CSS selectors for the paid promotion overlay elements
+  // CSS selectors for the paid promotion thumbnail banner elements.
   const SELECTORS = [
     ".ytp-paid-content-overlay",
     ".ytp-paid-content-overlay-link",
+    ".ytmPaidContentOverlayHost",
+    "ytm-paid-content-overlay-renderer",
     'a[href*="support.google.com/youtube"][href*="ppp"]',
   ];
 
   /**
-   * Removes all paid promotion overlay elements from the page
+   * Removes all paid promotion thumbnail banner elements from the page
    */
   function removePaidPromotion() {
     SELECTORS.forEach((selector) => {

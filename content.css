@@ -1,9 +1,11 @@
-/* Hide the "Includes paid promotion" button on YouTube videos */
+/* Hide the "Includes paid promotion" banner on YouTube thumbnails */
 
 .ytp-paid-content-overlay,
 .ytp-paid-content-overlay-link,
 div.ytp-paid-content-overlay,
 a.ytp-paid-content-overlay-link,
+.ytmPaidContentOverlayHost,
+ytm-paid-content-overlay-renderer,
 .ytp-paid-content-overlay-text,
 .ytp-paid-content-overlay-icon,
 .ytp-paid-content-overlay-indicator,

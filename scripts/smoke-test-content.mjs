@@ -49,9 +49,13 @@ vm.runInNewContext(source, {
 assert.deepEqual(queriedSelectors.slice(0, 3), [
   ".ytp-paid-content-overlay",
   ".ytp-paid-content-overlay-link",
+  ".ytmPaidContentOverlayHost",
+]);
+assert.deepEqual(queriedSelectors.slice(3, 5), [
+  "ytm-paid-content-overlay-renderer",
   'a[href*="support.google.com/youtube"][href*="ppp"]',
 ]);
-assert.equal(removedSelectors.length, 6);
+assert.equal(removedSelectors.length, 10);
 assert.equal(observedTarget, document.body);
 assert.equal(observedOptions.childList, true);
 assert.equal(observedOptions.subtree, true);

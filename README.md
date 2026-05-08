@@ -1,13 +1,13 @@
 # Paid Promo Hider for YouTube™
 
-A simple Chrome extension that hides the "Includes paid promotion" button overlay
-on YouTube videos to prevent accidental clicks.
+A simple Chrome extension that hides the "Includes paid promotion" banner on
+YouTube thumbnails to prevent accidental clicks.
 
 ## Why?
 
-The "Includes paid promotion" button appears on sponsored YouTube videos and is
-easy to click accidentally, which navigates you away from the video to a Google
-support page. This extension removes that button entirely.
+The "Includes paid promotion" banner appears over sponsored YouTube thumbnails
+and is easy to click accidentally, which navigates you away from the video to a
+Google support page. This extension removes that banner entirely.
 
 ## Installation
 
@@ -39,14 +39,14 @@ The package script creates a Web Store upload ZIP in `dist/`.
 
 The extension uses a content script that:
 
-- Removes the paid promotion overlay elements from the DOM
-- Uses a MutationObserver to catch dynamically loaded overlays as you navigate
-  YouTube
+- Removes the paid promotion thumbnail banner elements from the DOM
+- Uses a MutationObserver to catch dynamically loaded thumbnail banners as you
+  navigate YouTube
 
 ## Files
 
 - `manifest.json` - Extension configuration
-- `content.js` - Script that removes the overlay elements
+- `content.js` - Script that removes the thumbnail banner elements
 - `content.css` - CSS fallback for hiding elements
 - `store-assets/` - Chrome Web Store listing assets and submission notes
 - `scripts/` - Validation and packaging scripts
@@ -82,7 +82,7 @@ This extension:
 - Does NOT collect any user data
 - Does NOT make any network requests
 - Only runs on youtube.com
-- Only modifies the DOM to hide the paid promotion button
+- Only modifies the DOM to hide the paid promotion thumbnail banner
 
 See [PRIVACY.md](PRIVACY.md) for the full privacy policy.
 

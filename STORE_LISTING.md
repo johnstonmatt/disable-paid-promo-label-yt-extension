@@ -6,7 +6,7 @@ Store listing.
 ## Basic Information
 
 - **Extension name:** Paid Promo Hider for YouTube™
-- **Summary:** Hides the paid promotion overlay button on YouTube videos to
+- **Summary:** Hides the paid promotion banner on YouTube thumbnails to
   prevent accidental clicks.
 - **Category:** Productivity
 - **Language:** English
@@ -17,7 +17,7 @@ Store listing.
 ## Detailed Description
 
 Paid Promo Hider for YouTube™ hides the clickable "Includes paid promotion"
-overlay button that appears on some YouTube videos.
+banner that appears over some sponsored YouTube thumbnails.
 
 The extension is intentionally narrow:
 
@@ -27,8 +27,8 @@ The extension is intentionally narrow:
 - It does not make network requests
 - It does not use analytics, tracking, or remote code
 
-This is useful if you accidentally click the paid promotion disclosure overlay
-while watching videos and get navigated away from the player.
+This is useful if you accidentally click the paid promotion disclosure banner
+while opening videos from thumbnails and get navigated away from the video.
 
 YouTube is a trademark of Google LLC. Use of this trademark is subject to
 Google Permissions. This extension is not affiliated with, endorsed by,
@@ -36,15 +36,15 @@ sponsored by, or associated with Google LLC or YouTube.
 
 ## Privacy Practices Tab
 
-- **Single purpose:** Hide the paid promotion overlay button on YouTube videos
-  so it cannot be clicked accidentally.
+- **Single purpose:** Hide the paid promotion banner on YouTube thumbnails so it
+  cannot be clicked accidentally.
 - **Data usage:** The extension does not collect or use user data.
 - **Remote code:** No. All code is included in the extension package.
 - **Data sale or transfer:** No.
 - **Permissions justification:** The extension runs a local content script and
   stylesheet on `https://www.youtube.com` pages so it can hide the paid
-  promotion overlay button. It does not request browser API permissions or broad
-  host access.
+  promotion thumbnail banner. It does not request browser API permissions or
+  broad host access.
 
 ## Distribution
 
@@ -61,9 +61,9 @@ No account, login, or test credentials are required.
 To test manually:
 
 1. Install the extension.
-2. Open a YouTube video that displays the native "Includes paid promotion"
-   overlay.
-3. Confirm the paid promotion overlay button is hidden.
+2. Find a YouTube thumbnail that displays the native "Includes paid promotion"
+   banner.
+3. Confirm the paid promotion thumbnail banner is hidden.
 
 The extension has no toolbar popup, options page, background worker, analytics,
 tracking, or network requests.

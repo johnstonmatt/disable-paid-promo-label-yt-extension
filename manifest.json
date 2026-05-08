@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Paid Promo Hider for YouTube™",
-  "version": "1.0.0",
-  "description": "Hides the paid promotion overlay button on YouTube videos to prevent accidental clicks.",
+  "version": "1.0.1",
+  "description": "Hides the paid promotion banner on YouTube thumbnails to prevent accidental clicks.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
